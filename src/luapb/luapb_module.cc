@@ -21,6 +21,8 @@
 
 #include "luapb_module.h"
 
+#include "sol.hpp"
+
 #include "luapb_module.hpp"
 #include <google/protobuf/compiler/importer.h>
 #include <google/protobuf/dynamic_message.h>
@@ -32,7 +34,6 @@
 
 #undef GetMessage
 
-#include "sol.hpp"
 
 using namespace google::protobuf;
 using namespace compiler;
