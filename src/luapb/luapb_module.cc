@@ -20,12 +20,20 @@
 // SOFTWARE.
 
 #include "luapb_module.h"
-#include "sol.hpp"
+
 #include "luapb_module.hpp"
 #include <google/protobuf/compiler/importer.h>
 #include <google/protobuf/dynamic_message.h>
 #include <google/protobuf/message.h>
+
 #include <stdio.h>
+
+#include "dmutil.h"
+
+#undef GetMessage
+
+#include "sol.hpp"
+
 using namespace google::protobuf;
 using namespace compiler;
 
@@ -66,7 +74,7 @@ namespace lua_module {
 
         const EnumDescriptor* find_enum_descriptor(const std::string& enumName);
 
-        bool load_root_proto(const std::string& file, const std::string& diskPath);
+        bool load_root_proto(const std::string& file);
 
         Message* lua2protobuf(const std::string& pbName, const sol::table& tab);
         void     protobuf2lua(const Message& message, sol::table& root);
@@ -165,8 +173,14 @@ namespace lua_module {
         }
     };
 
-    bool ScriptProtobuf::load_root_proto(const std::string& file, const std::string& diskPath) {
-        m_sourceTree->MapPath("", diskPath);
+    bool ScriptProtobuf::load_root_proto(const std::string& file) {
+        std::string strRoot = DMGetRootPath();
+        std::string strProtoPath = strRoot + PATH_DELIMITER_STR + "proto";
+        std::string strProtoPath2 = strRoot + PATH_DELIMITER_STR + ".." + PATH_DELIMITER_STR + "proto";
+
+        m_sourceTree->MapPath("", strRoot);
+        m_sourceTree->MapPath("", strProtoPath);
+        m_sourceTree->MapPath("", strProtoPath2);
 
         SAFE_RELEASE(m_factory);
         SAFE_RELEASE(m_importer);
@@ -180,17 +194,14 @@ namespace lua_module {
             return false;
         }
         PRINTF("load proto file: "
-            "%s/%s"
+            "%s"
             " ok!\n",
-            diskPath.c_str(),
             file.c_str());
         return true;
     }
 
     bool ScriptProtobuf::load_proto_file(const std::string& sfile) {
-        const std::string FileName = sfile.substr(sfile.find_last_of("/") + 1);
-        const std::string FilePath = sfile.substr(0, sfile.find_last_of("/"));
-        return load_root_proto(FileName, FilePath);
+        return load_root_proto(sfile);
     }
 
     sol::table ScriptProtobuf::Decode(const char* structName, const std::string& msg) {
@@ -732,7 +743,7 @@ namespace lua_module {
         sol::state_view lua(L);
 
         sol::table module = lua.create_table();
-        module.new_usertype<ScriptProtobuf>("protobuf",
+        module.new_usertype<ScriptProtobuf>("pb",
             sol::constructors<ScriptProtobuf(sol::this_state, const std::string&)>(),
             "encode",
             &ScriptProtobuf::Encode,
@@ -747,20 +758,21 @@ namespace lua_module {
     }
 }
 // lua require
-int luaopen_luapb(lua_State* L) {
+LUA_API int luaopen_luapb(lua_State* L) {
     return sol::stack::call_lua(L, 1, lua_module::require_api);
 }
 
 // c++ register
-void require_luapb(lua_State* L) {
+LUA_API int require_luapb(lua_State* L) {
     luaL_requiref(L, "luapb", luaopen_luapb, 0);
     PRINTF("lua module: require luapb\n");
+    return 1;
 }
 
 #else
     //register to public
     static int require_api(sol::state_view lua) {
-        lua.new_usertype<ScriptProtobuf>("CProtobuf",
+        lua.new_usertype<ScriptProtobuf>("pb",
             sol::constructors<ScriptProtobuf(sol::this_state, const std::string&)>(),
             "encode",
             &ScriptProtobuf::Encode,

@@ -10,11 +10,13 @@
 #include <export_define.h>
 
 #define SOL_ALL_SAFETIES_ON 1
+//#define PRIVATE_REQUIRE
 // forward declare as a C struct
 // so a pointer to lua_State can be part of a signature
 extern "C" {
 struct lua_State;
 LUAMOD_API int luaopen_luapb(lua_State* L);
 }
+
 
 #endif
