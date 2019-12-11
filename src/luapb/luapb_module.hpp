@@ -7,8 +7,6 @@
 
 #include <sol.hpp>
 
-#include <export_define.h>
-
 #define SOL_ALL_SAFETIES_ON 1
 //#define PRIVATE_REQUIRE
 
