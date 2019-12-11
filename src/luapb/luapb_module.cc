@@ -19,9 +19,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "luapb_module.h"
-
 #include "sol.hpp"
+#include "luapb_module.h"
 
 #include "luapb_module.hpp"
 #include <google/protobuf/compiler/importer.h>
