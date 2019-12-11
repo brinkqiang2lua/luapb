@@ -44,7 +44,7 @@ macro(ModuleImport ModuleName ModulePath)
 
         IF (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${ModulePath}/CMakeLists.txt)
             ADD_SUBDIRECTORY(${ModulePath})
-            ELSEIF(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${ModulePath}/cmake/CMakeLists.txt)
+        ELSEIF(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${ModulePath}/cmake/CMakeLists.txt)
             ADD_SUBDIRECTORY(${ModulePath}/cmake)
         ELSE()
             MESSAGE(FATAL_ERROR "ModuleImport ${ModuleName} CMakeLists.txt not exist.")
@@ -53,12 +53,19 @@ macro(ModuleImport ModuleName ModulePath)
         IF (IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${ModulePath}/thirdparty)
             SUBDIRLIST(SUBDIRS ${CMAKE_CURRENT_SOURCE_DIR}/${ModulePath}/thirdparty)
             FOREACH(subdir ${SUBDIRS})
-                ModuleInclude(${ModuleName} ${ModulePath}/thirdparty/${subdir})
+                ModuleInclude(${subdir} ${ModulePath}/thirdparty/${subdir})
             ENDFOREACH()
         ENDIF()
 
         ModuleInclude(${ModuleName} ${ModulePath})
     ELSE()
+        IF (IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${ModulePath}/thirdparty)
+            SUBDIRLIST(SUBDIRS ${CMAKE_CURRENT_SOURCE_DIR}/${ModulePath}/thirdparty)
+            FOREACH(subdir ${SUBDIRS})
+                ModuleInclude(${subdir} ${ModulePath}/thirdparty/${subdir})
+            ENDFOREACH()
+        ENDIF()
+        ModuleInclude(${ModuleName} ${ModulePath})
         MESSAGE(STATUS "LIST REPEAT ${ModuleName} ${DMLIBS}" )
     ENDIF()
 endmacro(ModuleImport)
@@ -91,37 +98,26 @@ endmacro(ExeImport)
 
 macro(LibImport ModuleName ModulePath)
     MESSAGE(STATUS "LibImport ${ModuleName} ${ModulePath}")
+    IF (IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${ModulePath})
+        ModuleInclude(${ModuleName} ${ModulePath})
+        FILE(GLOB_RECURSE LIB_SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h
 
-    GET_PROPERTY(DMLIBS GLOBAL PROPERTY DMLIBS)
+        ${CMAKE_CURRENT_SOURCE_DIR}/${ModulePath}/*.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/${ModulePath}/*.cc
+        ${CMAKE_CURRENT_SOURCE_DIR}/${ModulePath}/*.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/${ModulePath}/*.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/${ModulePath}/*.h
+        )
 
-    LIST(FIND DMLIBS ${ModuleName} DMLIBS_FOUND)
-    IF (DMLIBS_FOUND STREQUAL "-1")
-        LIST(APPEND DMLIBS ${ModuleName})
-        SET_PROPERTY(GLOBAL PROPERTY DMLIBS ${DMLIBS})
+        LIST(FILTER LIB_SOURCES EXCLUDE REGEX "${CMAKE_CURRENT_SOURCE_DIR}/${ModulePath}/tpl/*")
 
-        IF (IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${ModulePath})
-            ModuleInclude(${ModuleName} ${ModulePath})
-            FILE(GLOB_RECURSE LIB_SOURCES
-            ${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp
-            ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h
+        IF (WIN32)
+            LIST(APPEND LIB_SOURCES)
+        ENDIF(WIN32)
 
-            ${CMAKE_CURRENT_SOURCE_DIR}/${ModulePath}/*.cpp
-            ${CMAKE_CURRENT_SOURCE_DIR}/${ModulePath}/*.cc
-            ${CMAKE_CURRENT_SOURCE_DIR}/${ModulePath}/*.c
-            ${CMAKE_CURRENT_SOURCE_DIR}/${ModulePath}/*.hpp
-            ${CMAKE_CURRENT_SOURCE_DIR}/${ModulePath}/*.h
-            )
-
-            LIST(FILTER LIB_SOURCES EXCLUDE REGEX "${CMAKE_CURRENT_SOURCE_DIR}/${ModulePath}/tpl/*")
-
-            IF (WIN32)
-                LIST(APPEND LIB_SOURCES)
-            ENDIF(WIN32)
-
-            ADD_LIBRARY(${ModuleName} ${LIB_SOURCES})
-        ENDIF()
-    ELSE()
-        MESSAGE(STATUS "LIST REPEAT ${ModuleName} ${DMLIBS}" )
+        ADD_LIBRARY(${ModuleName} ${LIB_SOURCES})
     ENDIF()
 endmacro(LibImport)
 
