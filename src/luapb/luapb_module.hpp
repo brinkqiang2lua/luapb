@@ -5,7 +5,7 @@
 #  pragma once
 #endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include <sol.hpp>
+#include "sol.hpp"
 
 #define SOL_ALL_SAFETIES_ON 1
 //#define PRIVATE_REQUIRE
