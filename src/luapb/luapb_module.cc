@@ -178,7 +178,7 @@ namespace lua_module {
     };
 
     bool ScriptProtobuf::load_root_proto(const std::string& file) {
-        m_sourceTree->MapPath("", getcwd());
+
 /*         std::string strRoot = DMGetRootPath();
         std::string strProtoPath = strRoot + PATH_DELIMITER_STR + "proto";
         std::string strProtoPath2 = strRoot + PATH_DELIMITER_STR + ".." + PATH_DELIMITER_STR + "proto";
