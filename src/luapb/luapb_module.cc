@@ -28,6 +28,11 @@
 
 #include <stdio.h>
 
+#ifdef WIN32
+#include <direct.h>
+#else
+#include <unistd.h>
+#endif
 //#include "dmutil.h"
 
 //#undef GetMessage
@@ -173,14 +178,14 @@ namespace lua_module {
     };
 
     bool ScriptProtobuf::load_root_proto(const std::string& file) {
+        m_sourceTree->MapPath("", getcwd());
 /*         std::string strRoot = DMGetRootPath();
         std::string strProtoPath = strRoot + PATH_DELIMITER_STR + "proto";
         std::string strProtoPath2 = strRoot + PATH_DELIMITER_STR + ".." + PATH_DELIMITER_STR + "proto";
-
         m_sourceTree->MapPath("", strRoot);
         m_sourceTree->MapPath("", strProtoPath);
-        m_sourceTree->MapPath("", strProtoPath2); */
-
+        m_sourceTree->MapPath("", strProtoPath2);
+ */
         SAFE_RELEASE(m_factory);
         SAFE_RELEASE(m_importer);
 
