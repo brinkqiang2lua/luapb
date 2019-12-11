@@ -29,9 +29,9 @@
 
 #include <stdio.h>
 
-#include "dmutil.h"
+//#include "dmutil.h"
 
-#undef GetMessage
+//#undef GetMessage
 
 
 using namespace google::protobuf;
@@ -174,13 +174,13 @@ namespace lua_module {
     };
 
     bool ScriptProtobuf::load_root_proto(const std::string& file) {
-        std::string strRoot = DMGetRootPath();
+/*         std::string strRoot = DMGetRootPath();
         std::string strProtoPath = strRoot + PATH_DELIMITER_STR + "proto";
         std::string strProtoPath2 = strRoot + PATH_DELIMITER_STR + ".." + PATH_DELIMITER_STR + "proto";
 
         m_sourceTree->MapPath("", strRoot);
         m_sourceTree->MapPath("", strProtoPath);
-        m_sourceTree->MapPath("", strProtoPath2);
+        m_sourceTree->MapPath("", strProtoPath2); */
 
         SAFE_RELEASE(m_factory);
         SAFE_RELEASE(m_importer);
